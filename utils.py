@@ -9,7 +9,7 @@ def plot_heatmap(denorm_image, pred, heatmap):
 
     fig, (ax1, ax2) = plt.subplots(figsize=(20,20), ncols=2)
 
-    classes = ['violence','non_violence]
+    classes = ['violence','non_violence']
     ps = torch.nn.Softmax(dim = 1)(pred).cpu().detach().numpy()
     ax1.imshow(denorm_image)
 
