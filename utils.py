@@ -24,31 +24,29 @@ def plot_heatmap(denorm_image, pred, heatmap):
 
 
 class ImageDataset(Dataset):
-    def __init__(self, df, data_dir=None, img_size=(224, 224)):
+
+    def __init__(self, df, data_dir = None, augs = None,):
         self.df = df
-        self.data_dir = data_dir
-        self.img_size = img_size  # Ensure all images are resized to this size
+        self.augs = augs
+        self.data_dir = data_dir 
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
+
         row = self.df.iloc[idx]
 
         img_path = self.data_dir + row.img_path
         img = cv2.imread(img_path)
-
-        if img is None:
-            raise FileNotFoundError(f"Image not found at {img_path}")
-
-        # Resize the image to the target size using OpenCV
-        img = cv2.resize(img, self.img_size)
-
-        # Convert BGR (OpenCV) to RGB
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # Convert to PyTorch tensor
-        img = torch.from_numpy(img).permute(2, 0, 1).float() / 255.0  # Normalize to [0, 1]
+        label = row.label 
 
-        label = row.label
+        if self.augs:
+            data = self.augs(image = img)
+            img = data['image']
+
+        img = torch.from_numpy(img).permute(2, 0, 1)
+
         return img, label
